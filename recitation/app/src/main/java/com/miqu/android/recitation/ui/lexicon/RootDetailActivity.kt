@@ -55,7 +55,7 @@ class RootDetailActivity : AppCompatActivity() {
         binding.textRootArabicLarge.text = rootText.toCharArray().joinToString(" ")
         binding.textRootArabicLarge.typeface = com.miqu.android.recitation.util.FontHelper.getArabicTypeface(this)
         binding.textRootFullDefinition.text = definition.ifEmpty { "Classical root form: $rootText" }
-        binding.toolbar.title = "Root: $rootText"
+        binding.toolbar.title = "Root: \u200E$rootText"
 
         rootsDbHelper = RootsDatabaseHelper.getInstance(this)
         surahRepo = SurahRepository(this)

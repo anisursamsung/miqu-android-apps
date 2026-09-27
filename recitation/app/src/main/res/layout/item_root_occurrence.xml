@@ -20,36 +20,49 @@
         android:orientation="horizontal"
         android:padding="12dp">
 
-        <TextView
-            android:id="@+id/textOccurrenceSurahVerse"
+        <com.google.android.material.card.MaterialCardView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:background="?attr/colorSurfaceContainerHigh"
-            android:paddingHorizontal="8dp"
-            android:paddingVertical="4dp"
-            android:textColor="?attr/colorOnSurface"
-            android:textSize="12sp"
-            android:textStyle="bold"
-            tools:text="2:255" />
+            app:cardBackgroundColor="?attr/colorSurfaceContainerHigh"
+            app:cardCornerRadius="8dp"
+            app:cardElevation="0dp">
 
-        <TextView
-            android:id="@+id/textOccurrenceArabic"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginHorizontal="12dp"
-            android:layout_weight="1"
-            android:textColor="?attr/colorOnSurface"
-            android:textSize="18sp"
-            android:textStyle="bold"
-            tools:text="السَّلَامُ" />
+            <TextView
+                android:id="@+id/textOccurrenceSurahVerse"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingHorizontal="8dp"
+                android:paddingVertical="4dp"
+                android:textColor="?attr/colorOnSurface"
+                android:textSize="12sp"
+                android:textStyle="bold"
+                tools:text="Ayah 80:31" />
+        </com.google.android.material.card.MaterialCardView>
 
         <TextView
             android:id="@+id/textOccurrenceEnglish"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="12dp"
+            android:layout_marginEnd="12dp"
+            android:layout_weight="1"
+            android:ellipsize="end"
+            android:gravity="start|center_vertical"
+            android:maxLines="2"
+            android:textColor="?attr/colorOnSurfaceVariant"
+            android:textSize="14sp"
+            tools:text="and grass," />
+
+        <TextView
+            android:id="@+id/textOccurrenceArabic"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textColor="?attr/colorOnSurfaceVariant"
-            android:textSize="13sp"
-            tools:text="peace" />
+            android:gravity="end|center_vertical"
+            android:textColor="?attr/colorOnSurface"
+            android:textDirection="rtl"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            tools:text="وَأَبًّا" />
 
     </LinearLayout>
 
