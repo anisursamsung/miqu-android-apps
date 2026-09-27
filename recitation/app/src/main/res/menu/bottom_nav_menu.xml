@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/nav_surahs"
+        android:icon="@drawable/ic_quran"
+        android:title="@string/nav_surahs" />
+    <item
+        android:id="@+id/nav_mushaf"
+        android:icon="@drawable/ic_book"
+        android:title="@string/nav_mushaf" />
+    <item
+        android:id="@+id/nav_lexicon"
+        android:icon="@drawable/ic_lexicon"
+        android:title="@string/nav_lexicon" />
+    <item
+        android:id="@+id/nav_media"
+        android:icon="@drawable/ic_video"
+        android:title="@string/nav_media" />
+</menu>
