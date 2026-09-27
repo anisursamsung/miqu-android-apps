@@ -47,20 +47,11 @@
     <string name="settings_tafsir_title">Default Tafsir</string>
     <string name="settings_tafsir_desc">Select exegesis book to display by default</string>
     <string name="play_recitation">Play Recitation</string>
-    <string name="nav_mushaf">Mushafs</string>
-    <string name="mushaf_king_fahad_title">King Fahad Mushaf</string>
-    <string name="mushaf_king_fahad_desc">Madinah Saudi Uthmanic 15-line print • 604 Pages</string>
-    <string name="mushaf_indo_pak_title">Indo-Pak Mushaf</string>
-    <string name="mushaf_indo_pak_desc">South Asian 15-line standard • Nastaliq print</string>
-    <string name="open_mushaf">Open Mushaf</string>
-    <string name="mushaf_page_of">Page %1$d of %2$d</string>
-    <string name="mushaf_juz_label">Juz %1$d</string>
-    <string name="jump_to_page">Jump to Page</string>
     <string name="play">Play</string>
     <string name="pause">Pause</string>
     <string name="morphology_source_attribution">Morphology by corpus.quran.com</string>
     <string name="more_sources_licenses_title">Data Sources &amp; Licenses</string>
     <string name="more_sources_licenses_desc">Quranic Arabic Corpus, Tanzil.info, Lexicons &amp; open source terms</string>
-    <string name="search_hint_unified">Search Surah, Ayah (e.g. 2:255), Page, Roots...</string>
-    <string name="no_search_results">No matching Surahs, verses, or pages found</string>
+    <string name="search_hint_unified">Search Surah, Ayah (e.g. 2:255), Roots...</string>
+    <string name="no_search_results">No matching Surahs, verses, or roots found</string>
 </resources>

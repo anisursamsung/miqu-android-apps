@@ -1,4 +1,4 @@
-package com.miqu.android.recitation.ui.videos
+package com.miqu.android.recitation.ui.more
 
 import android.view.LayoutInflater
 import android.view.ViewGroup

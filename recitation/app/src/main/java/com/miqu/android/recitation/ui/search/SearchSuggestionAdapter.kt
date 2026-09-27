@@ -69,13 +69,6 @@ class SearchSuggestionAdapter(
                     binding.textSuggestionSubtitle.text = "$markerPrefix$snippet"
                 }
 
-                is SearchSuggestion.MushafPageItem -> {
-                    binding.imageSuggestionIcon.setImageResource(R.drawable.ic_book)
-                    binding.textSuggestionTitle.text = "Page ${item.pageNumber}"
-                    binding.textSuggestionBadge.text = "Mushaf"
-                    binding.textSuggestionSubtitle.text = "Juz ${item.juzNumber} • ${item.surahName} • King Fahad & Indo-Pak"
-                }
-
                 is SearchSuggestion.RootItem -> {
                     val r = item.rootEntry
                     binding.imageSuggestionIcon.setImageResource(R.drawable.ic_tree)
@@ -96,8 +89,6 @@ class SearchSuggestionAdapter(
                     oldItem.surahId == newItem.surahId && oldItem.ayahNumber == newItem.ayahNumber
                 oldItem is SearchSuggestion.VerseTextItem && newItem is SearchSuggestion.VerseTextItem ->
                     oldItem.verse.id == newItem.verse.id && oldItem.translationMarker == newItem.translationMarker
-                oldItem is SearchSuggestion.MushafPageItem && newItem is SearchSuggestion.MushafPageItem ->
-                    oldItem.pageNumber == newItem.pageNumber
                 oldItem is SearchSuggestion.RootItem && newItem is SearchSuggestion.RootItem ->
                     oldItem.rootEntry.root == newItem.rootEntry.root
                 else -> false

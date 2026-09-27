@@ -20,12 +20,6 @@ sealed class SearchSuggestion {
         val translationKey: String? = null
     ) : SearchSuggestion()
 
-    data class MushafPageItem(
-        val pageNumber: Int,
-        val surahName: String,
-        val juzNumber: Int
-    ) : SearchSuggestion()
-
     data class RootItem(
         val rootEntry: RootEntry
     ) : SearchSuggestion()

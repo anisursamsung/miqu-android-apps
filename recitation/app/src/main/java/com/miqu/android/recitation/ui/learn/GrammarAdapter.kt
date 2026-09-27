@@ -4,6 +4,7 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.miqu.android.recitation.databinding.ItemGrammarRuleBinding
+import com.miqu.android.recitation.model.GrammarRule
 
 class GrammarAdapter(
     private val rules: List<GrammarRule>

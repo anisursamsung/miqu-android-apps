@@ -1,7 +1,6 @@
 package com.miqu.android.recitation.data
 
 import android.content.Context
-import com.miqu.android.recitation.model.MushafType
 import com.miqu.android.recitation.model.SearchSuggestion
 import com.miqu.android.recitation.model.Surah
 
@@ -10,7 +9,6 @@ class UnifiedSearchRepository(private val context: Context) {
     private val surahRepo = SurahRepository(context)
     private val quranDbHelper = QuranDatabaseHelper.getInstance(context)
     private val lexiconRepo = LexiconRepository(context)
-    private val mushafRepo = MushafRepository.getInstance(context)
 
     private val allSurahs: List<Surah> by lazy { surahRepo.getSurahs() }
     private val surahNameMap: Map<Int, String> by lazy {
@@ -19,7 +17,6 @@ class UnifiedSearchRepository(private val context: Context) {
 
     private val versePattern1 = Regex("""^(\d{1,3})\s*[:\.]\s*(\d{1,3})$""")
     private val versePattern2 = Regex("""^(?:surah|s)?\s*(\d{1,3})\s*(?:ayah|a|v|verse)?\s*(\d{1,3})$""", RegexOption.IGNORE_CASE)
-    private val pagePattern = Regex("""^(?:page|p)\s*[:\.]?\s*(\d{1,3})$""", RegexOption.IGNORE_CASE)
 
     fun search(rawQuery: String): List<SearchSuggestion> {
         val query = rawQuery.trim()
@@ -56,26 +53,7 @@ class UnifiedSearchRepository(private val context: Context) {
             }
         }
 
-        // 2. Check for Page Jump ("page 50", "p 120", or pure number <= 610)
-        val pageMatch = pagePattern.matchEntire(query)
-        val pageNum = pageMatch?.groupValues?.get(1)?.toIntOrNull()
-            ?: if (query.matches(Regex("""^\d{1,3}$"""))) query.toIntOrNull() else null
-
-        if (pageNum != null && pageNum in 1..610) {
-            val page = mushafRepo.getPage(MushafType.KING_FAHAD, pageNum)
-                ?: mushafRepo.getPage(MushafType.INDO_PAK, pageNum)
-            val surahName = page?.surahName ?: "Page $pageNum"
-            val juzNum = page?.juzNumber ?: 1
-            results.add(
-                SearchSuggestion.MushafPageItem(
-                    pageNumber = pageNum,
-                    surahName = surahName,
-                    juzNumber = juzNum
-                )
-            )
-        }
-
-        // 3. Search Surahs (by number, transliteration, english, arabic, urdu, bengali)
+        // 2. Search Surahs (by number, transliteration, english, arabic, urdu, bengali)
         val matchedSurahs = allSurahs.filter { s ->
             s.id.toString() == query ||
                     s.transliteration.contains(query, ignoreCase = true) ||

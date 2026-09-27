@@ -5,10 +5,6 @@
         android:icon="@drawable/ic_quran"
         android:title="@string/nav_surahs" />
     <item
-        android:id="@+id/nav_mushaf"
-        android:icon="@drawable/ic_book"
-        android:title="@string/nav_mushaf" />
-    <item
         android:id="@+id/nav_learn"
         android:icon="@drawable/ic_school"
         android:title="@string/nav_learn" />

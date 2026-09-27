@@ -21,8 +21,6 @@ import com.miqu.android.recitation.model.SearchSuggestion
 import com.miqu.android.recitation.ui.learn.LearnFragment
 import com.miqu.android.recitation.ui.lexicon.RootDetailActivity
 import com.miqu.android.recitation.ui.more.MoreFragment
-import com.miqu.android.recitation.ui.mushaf.MushafActivity
-import com.miqu.android.recitation.ui.mushaf.MushafsFragment
 import com.miqu.android.recitation.ui.reader.ReaderActivity
 import com.miqu.android.recitation.ui.search.SearchSuggestionAdapter
 import com.miqu.android.recitation.ui.surah.SurahListFragment
@@ -38,7 +36,6 @@ class MainActivity : AppCompatActivity() {
     private var searchRunnable: Runnable? = null
 
     private val surahListFragment = SurahListFragment()
-    private val mushafsFragment = MushafsFragment()
     private val learnFragment = LearnFragment()
     private val moreFragment = MoreFragment()
 
@@ -83,10 +80,6 @@ class MainActivity : AppCompatActivity() {
             when (item.itemId) {
                 R.id.nav_surahs -> {
                     switchFragment(surahListFragment)
-                    true
-                }
-                R.id.nav_mushaf -> {
-                    switchFragment(mushafsFragment)
                     true
                 }
                 R.id.nav_learn -> {
@@ -199,14 +192,6 @@ class MainActivity : AppCompatActivity() {
                     } else if (item.translationMarker == "Arabic") {
                         putExtra(ReaderActivity.EXTRA_FORCE_SHOW_ARABIC, true)
                     }
-                }
-                binding.searchView.hide()
-                startActivity(intent)
-            }
-
-            is SearchSuggestion.MushafPageItem -> {
-                val intent = Intent(this, MushafActivity::class.java).apply {
-                    putExtra(MushafActivity.EXTRA_START_PAGE, item.pageNumber)
                 }
                 binding.searchView.hide()
                 startActivity(intent)

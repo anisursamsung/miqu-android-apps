@@ -9,6 +9,7 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updatePadding
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.miqu.android.recitation.databinding.ActivityGrammarBinding
+import com.miqu.android.recitation.model.GrammarRule
 
 class GrammarActivity : AppCompatActivity() {
 

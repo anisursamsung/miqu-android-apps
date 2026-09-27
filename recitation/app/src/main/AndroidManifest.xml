@@ -41,11 +41,6 @@
             android:windowSoftInputMode="adjustResize" />
 
         <activity
-            android:name=".ui.mushaf.MushafActivity"
-            android:exported="true"
-            android:windowSoftInputMode="adjustResize" />
-
-        <activity
             android:name=".ui.settings.SettingsActivity"
             android:exported="false"
             android:windowSoftInputMode="adjustResize" />

@@ -8,7 +8,7 @@ import java.io.FileOutputStream
 object DatabaseAssetManager {
     private const val TAG = "DatabaseAssetManager"
     private const val PREF_DB_VERSION = "installed_db_version"
-    private const val CURRENT_DB_VERSION = 3
+    private const val CURRENT_DB_VERSION = 5
 
     private val DATABASES = listOf("quran.db", "roots.db")
 
@@ -20,6 +20,15 @@ object DatabaseAssetManager {
         val dbDir = context.getDatabasePath("quran.db").parentFile ?: File(context.filesDir, "../databases")
         if (!dbDir.exists()) {
             dbDir.mkdirs()
+        }
+
+        // Clean up legacy Mushaf database if present to save storage
+        val legacyDb = File(dbDir, "indopak-nastaleeq.db")
+        if (legacyDb.exists()) {
+            try {
+                legacyDb.delete()
+                Log.d(TAG, "Purged legacy indopak-nastaleeq.db")
+            } catch (_: Exception) {}
         }
 
         val needsCopy = installedVersion < CURRENT_DB_VERSION || DATABASES.any { !File(dbDir, it).exists() }

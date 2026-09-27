@@ -12,7 +12,6 @@ import androidx.core.view.updatePadding
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.miqu.android.recitation.data.VideoRepository
 import com.miqu.android.recitation.databinding.ActivitySpecialRecitationsBinding
-import com.miqu.android.recitation.ui.videos.VideoAdapter
 
 class SpecialRecitationsActivity : AppCompatActivity() {
 

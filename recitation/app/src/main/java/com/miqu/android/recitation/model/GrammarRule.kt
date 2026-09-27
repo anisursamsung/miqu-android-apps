@@ -1,4 +1,4 @@
-package com.miqu.android.recitation.ui.learn
+package com.miqu.android.recitation.model
 
 data class GrammarRule(
     val tag: String,
