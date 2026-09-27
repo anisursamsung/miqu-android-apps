@@ -184,7 +184,7 @@
                 <com.google.android.material.card.MaterialCardView
                     android:layout_width="48dp"
                     android:layout_height="48dp"
-                    app:cardBackgroundColor="?attr/colorTertiaryContainer"
+                    app:cardBackgroundColor="?attr/colorPrimaryContainer"
                     app:cardCornerRadius="14dp"
                     app:cardElevation="0dp"
                     app:strokeWidth="0dp">
@@ -194,7 +194,7 @@
                         android:layout_height="24dp"
                         android:layout_gravity="center"
                         android:src="@drawable/ic_school"
-                        app:tint="?attr/colorOnTertiaryContainer" />
+                        app:tint="?attr/colorOnPrimaryContainer" />
                 </com.google.android.material.card.MaterialCardView>
 
                 <LinearLayout

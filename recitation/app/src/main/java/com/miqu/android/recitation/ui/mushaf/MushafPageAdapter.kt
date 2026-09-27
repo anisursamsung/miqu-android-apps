@@ -77,6 +77,7 @@ class MushafPageAdapter(
         RecyclerView.ViewHolder(binding.root) {
 
         private val lineSlots = ArrayList<FrameLayout>(15)
+        private val lineDividers = ArrayList<View>(14)
 
         init {
             binding.root.setOnClickListener {
@@ -86,8 +87,14 @@ class MushafPageAdapter(
                 onPageClick()
             }
 
-            // Pre-create exactly 15 line slot containers
+            // Pre-create exactly 15 line slot containers with dividers between them
             binding.containerLines.removeAllViews()
+            val dividerHeight = TypedValue.applyDimension(
+                TypedValue.COMPLEX_UNIT_DIP,
+                1f,
+                context.resources.displayMetrics
+            ).toInt().coerceAtLeast(1)
+
             for (i in 0 until 15) {
                 val slot = FrameLayout(context).apply {
                     layoutParams = LinearLayout.LayoutParams(
@@ -98,6 +105,19 @@ class MushafPageAdapter(
                 }
                 lineSlots.add(slot)
                 binding.containerLines.addView(slot)
+
+                if (i < 14) {
+                    val divider = View(context).apply {
+                        layoutParams = LinearLayout.LayoutParams(
+                            LinearLayout.LayoutParams.MATCH_PARENT,
+                            dividerHeight
+                        )
+                        isClickable = false
+                        isFocusable = false
+                    }
+                    lineDividers.add(divider)
+                    binding.containerLines.addView(divider)
+                }
             }
         }
 
@@ -112,6 +132,19 @@ class MushafPageAdapter(
             val outlineVariant = MaterialColors.getColor(binding.root, com.google.android.material.R.attr.colorOutlineVariant)
 
             val lines = page.lines
+            for (i in 0 until 14) {
+                val divider = lineDividers[i]
+                val currentLine = lines.getOrNull(i)
+                val nextLine = lines.getOrNull(i + 1)
+                val shouldShow = currentLine != null && nextLine != null &&
+                        currentLine !is MushafLine.EmptySpacer &&
+                        nextLine !is MushafLine.EmptySpacer &&
+                        currentLine !is MushafLine.SurahHeader &&
+                        nextLine !is MushafLine.SurahHeader
+
+                divider.visibility = if (shouldShow) View.VISIBLE else View.INVISIBLE
+                divider.setBackgroundColor(outlineVariant)
+            }
             for (i in 0 until 15) {
                 val slot = lineSlots[i]
                 slot.removeAllViews()

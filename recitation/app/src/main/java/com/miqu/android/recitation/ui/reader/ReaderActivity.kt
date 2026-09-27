@@ -28,6 +28,9 @@ class ReaderActivity : AppCompatActivity() {
         const val EXTRA_SURAH_TRANSLITERATION = "extra_surah_transliteration"
         const val EXTRA_TOTAL_VERSES = "extra_total_verses"
         const val EXTRA_TARGET_VERSE = "extra_target_verse"
+        const val EXTRA_OVERRIDE_TRANSLATION = "extra_override_translation"
+        const val EXTRA_FORCE_SHOW_TRANSLATION = "extra_force_show_translation"
+        const val EXTRA_FORCE_SHOW_ARABIC = "extra_force_show_arabic"
     }
 
     private lateinit var binding: ActivityReaderBinding
@@ -76,6 +79,22 @@ class ReaderActivity : AppCompatActivity() {
             finish()
         }
 
+        surahId = intent.getIntExtra(EXTRA_SURAH_ID, 1)
+        val surahName = intent.getStringExtra(EXTRA_SURAH_NAME) ?: ""
+        val transliteration = intent.getStringExtra(EXTRA_SURAH_TRANSLITERATION) ?: "Surah $surahId"
+        val totalVerses = intent.getIntExtra(EXTRA_TOTAL_VERSES, 0)
+        val targetVerse = intent.getIntExtra(EXTRA_TARGET_VERSE, -1)
+        val overrideTranslation = intent.getStringExtra(EXTRA_OVERRIDE_TRANSLATION)
+        val forceShowTranslation = intent.getBooleanExtra(EXTRA_FORCE_SHOW_TRANSLATION, false)
+        val forceShowArabic = intent.getBooleanExtra(EXTRA_FORCE_SHOW_ARABIC, false)
+
+        val transSubtitle = if (!overrideTranslation.isNullOrEmpty()) {
+            " • ${UserSettings.getTranslationDisplayName(overrideTranslation)}"
+        } else ""
+
+        binding.toolbar.title = "$transliteration ($surahName)"
+        binding.toolbar.subtitle = (if (totalVerses > 0) "$totalVerses Verses • Surah #$surahId" else "Surah #$surahId") + transSubtitle
+
         binding.toolbar.inflateMenu(R.menu.menu_reader)
         binding.toolbar.setOnMenuItemClickListener { item ->
             when (item.itemId) {
@@ -85,6 +104,10 @@ class ReaderActivity : AppCompatActivity() {
                 }
                 R.id.action_appearance -> {
                     val sheet = ReaderAppearanceBottomSheetFragment {
+                        adapter.overrideTranslation = null
+                        adapter.forceShowTranslation = false
+                        adapter.forceShowArabic = false
+                        binding.toolbar.subtitle = if (totalVerses > 0) "$totalVerses Verses • Surah #$surahId" else "Surah #$surahId"
                         adapter.notifyDataSetChanged()
                         updatePlaybackBarLabels()
                     }
@@ -95,21 +118,15 @@ class ReaderActivity : AppCompatActivity() {
             }
         }
 
-        surahId = intent.getIntExtra(EXTRA_SURAH_ID, 1)
-        val surahName = intent.getStringExtra(EXTRA_SURAH_NAME) ?: ""
-        val transliteration = intent.getStringExtra(EXTRA_SURAH_TRANSLITERATION) ?: "Surah $surahId"
-        val totalVerses = intent.getIntExtra(EXTRA_TOTAL_VERSES, 0)
-        val targetVerse = intent.getIntExtra(EXTRA_TARGET_VERSE, -1)
-
-        binding.toolbar.title = "$transliteration ($surahName)"
-        binding.toolbar.subtitle = if (totalVerses > 0) "$totalVerses Verses • Surah #$surahId" else "Surah #$surahId"
-
         setupAudioPlayerCallbacks()
         setupPlaybackBarControls()
 
         adapter = VerseAdapter(
             context = this,
             userSettings = userSettings,
+            overrideTranslation = overrideTranslation,
+            forceShowTranslation = forceShowTranslation,
+            forceShowArabic = forceShowArabic,
             onPlayClick = { verse ->
                 if (audioPlayer.currentlyPlayingVerse == verse.verseNumber && audioPlayer.isPlaying) {
                     audioPlayer.pause()

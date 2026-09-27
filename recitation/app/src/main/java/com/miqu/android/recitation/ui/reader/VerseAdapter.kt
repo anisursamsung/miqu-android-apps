@@ -17,6 +17,9 @@ import com.miqu.android.recitation.model.Verse
 class VerseAdapter(
     private val context: Context,
     private val userSettings: UserSettings,
+    var overrideTranslation: String? = null,
+    var forceShowTranslation: Boolean = false,
+    var forceShowArabic: Boolean = false,
     private val onPlayClick: (Verse) -> Unit,
     private val onMorphologyClick: (Verse) -> Unit,
     private val onTafsirClick: (Verse) -> Unit
@@ -83,8 +86,8 @@ class VerseAdapter(
             binding.textVerseKey.text = "${verse.surahNumber}:${verse.verseNumber}"
 
             // Text visibility controls
-            val showArabic = userSettings.showArabic
-            val showTranslation = userSettings.showTranslation
+            val showArabic = forceShowArabic || userSettings.showArabic
+            val showTranslation = forceShowTranslation || userSettings.showTranslation
 
             binding.textArabic.visibility = if (showArabic) View.VISIBLE else View.GONE
             binding.textTranslation.visibility = if (showTranslation) View.VISIBLE else View.GONE
@@ -98,11 +101,12 @@ class VerseAdapter(
                 binding.textArabic.gravity = android.view.Gravity.END or android.view.Gravity.RIGHT
             }
 
-            val translationText = verse.getTranslation(userSettings.translation)
+            val activeTranslation = overrideTranslation ?: userSettings.translation
+            val translationText = verse.getTranslation(activeTranslation)
             if (showTranslation) {
                 binding.textTranslation.text = translationText
                 binding.textTranslation.textSize = userSettings.translationFontSize
-                binding.textTranslation.typeface = com.miqu.android.recitation.util.FontHelper.getTranslationTypeface(context, userSettings)
+                binding.textTranslation.typeface = com.miqu.android.recitation.util.FontHelper.getTranslationTypeface(context, activeTranslation, userSettings)
             }
 
             // Play / Pause Icon

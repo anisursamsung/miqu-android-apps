@@ -68,7 +68,11 @@ object FontHelper {
     }
 
     fun getTranslationTypeface(context: Context, userSettings: UserSettings): Typeface? {
-        return when (userSettings.translation) {
+        return getTranslationTypeface(context, userSettings.translation, userSettings)
+    }
+
+    fun getTranslationTypeface(context: Context, translationKey: String, userSettings: UserSettings): Typeface? {
+        return when (translationKey) {
             UserSettings.TRANS_BENGALI -> getBengaliTypeface(context, userSettings.fontBengali)
             UserSettings.TRANS_ENGLISH, UserSettings.TRANS_YUSUF_ALI -> getEnglishTypeface(
                 context,

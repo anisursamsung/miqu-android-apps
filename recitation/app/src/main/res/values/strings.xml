@@ -61,4 +61,6 @@
     <string name="morphology_source_attribution">Morphology by corpus.quran.com</string>
     <string name="more_sources_licenses_title">Data Sources &amp; Licenses</string>
     <string name="more_sources_licenses_desc">Quranic Arabic Corpus, Tanzil.info, Lexicons &amp; open source terms</string>
+    <string name="search_hint_unified">Search Surah, Ayah (e.g. 2:255), Page, Roots...</string>
+    <string name="no_search_results">No matching Surahs, verses, or pages found</string>
 </resources>

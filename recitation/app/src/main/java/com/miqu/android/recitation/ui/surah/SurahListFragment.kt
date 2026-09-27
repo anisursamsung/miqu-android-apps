@@ -52,36 +52,20 @@ class SurahListFragment : Fragment() {
         binding.recyclerViewSurahs.adapter = adapter
         adapter.submitList(allSurahs)
 
-        binding.searchEditText.doAfterTextChanged {
-            filterSurahs()
-        }
-
         binding.chipGroupFilter.setOnCheckedStateChangeListener { _, _ ->
             filterSurahs()
         }
     }
 
     private fun filterSurahs() {
-        val query = binding.searchEditText.text?.toString()?.trim() ?: ""
         val checkedChipId = binding.chipGroupFilter.checkedChipId
 
         val filtered = allSurahs.filter { surah ->
-            val matchesFilter = when (checkedChipId) {
+            when (checkedChipId) {
                 R.id.chipMeccan -> surah.type.equals("meccan", ignoreCase = true)
                 R.id.chipMedinan -> surah.type.equals("medinan", ignoreCase = true)
                 else -> true
             }
-
-            val matchesQuery = if (query.isEmpty()) true else {
-                surah.id.toString() == query ||
-                        surah.transliteration.contains(query, ignoreCase = true) ||
-                        surah.name.contains(query) ||
-                        surah.english.contains(query, ignoreCase = true) ||
-                        surah.bengali.contains(query) ||
-                        surah.urdu.contains(query)
-            }
-
-            matchesFilter && matchesQuery
         }
 
         adapter.submitList(filtered)

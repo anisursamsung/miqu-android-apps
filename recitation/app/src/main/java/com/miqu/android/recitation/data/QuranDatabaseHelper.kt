@@ -119,8 +119,8 @@ class QuranDatabaseHelper(context: Context) :
         val cursor = db.query(
             TABLE_VERSES,
             null,
-            "$COL_ARABIC LIKE ? OR $COL_ENGLISH LIKE ? OR $COL_BENGALI LIKE ? OR $COL_URDU LIKE ? OR $COL_INDONESIAN LIKE ?",
-            arrayOf(wildcard, wildcard, wildcard, wildcard, wildcard),
+            "$COL_ARABIC LIKE ? OR $COL_ENGLISH LIKE ? OR $COL_ENGLISH_Y LIKE ? OR $COL_BENGALI LIKE ? OR $COL_URDU LIKE ? OR $COL_INDONESIAN LIKE ? OR $COL_ASSAMESE LIKE ?",
+            arrayOf(wildcard, wildcard, wildcard, wildcard, wildcard, wildcard, wildcard),
             null,
             null,
             "$COL_SURAH_NUMBER ASC, $COL_VERSE_NUMBER ASC",

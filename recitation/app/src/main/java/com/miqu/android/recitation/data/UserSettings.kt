@@ -43,6 +43,18 @@ class UserSettings(context: Context) {
         const val TAFSIR_EN_MAARIF = "tafsir_en_maarif_ul_quran.md"
         const val TAFSIR_INDO_JALALAYN = "tafsir_indo_jalalayn_tanzil.md"
         const val TAFSIR_AS_MOKHTASAR = "tafsir_as_mokhtasar_islamhouse.md"
+
+        fun getTranslationDisplayName(transKey: String): String {
+            return when (transKey.lowercase()) {
+                TRANS_ENGLISH -> "Sahih Intl"
+                TRANS_YUSUF_ALI -> "Yusuf Ali"
+                TRANS_BENGALI -> "Bengali"
+                TRANS_URDU -> "Urdu"
+                TRANS_INDONESIAN -> "Indonesian"
+                TRANS_ASSAMESE -> "Assamese"
+                else -> transKey.replaceFirstChar { it.uppercase() }
+            }
+        }
     }
 
     var script: String
