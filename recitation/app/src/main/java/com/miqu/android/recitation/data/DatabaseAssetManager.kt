@@ -8,7 +8,7 @@ import java.io.FileOutputStream
 object DatabaseAssetManager {
     private const val TAG = "DatabaseAssetManager"
     private const val PREF_DB_VERSION = "installed_db_version"
-    private const val CURRENT_DB_VERSION = 2
+    private const val CURRENT_DB_VERSION = 3
 
     private val DATABASES = listOf("quran.db", "roots.db")
 

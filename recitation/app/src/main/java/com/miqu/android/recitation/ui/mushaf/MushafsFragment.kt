@@ -52,10 +52,7 @@ class MushafsFragment : Fragment() {
         }
 
         binding.cardKingFahad.setOnClickListener { openKingFahad() }
-        binding.btnOpenKingFahad.setOnClickListener { openKingFahad() }
-
         binding.cardIndoPak.setOnClickListener { openIndoPak() }
-        binding.btnOpenIndoPak.setOnClickListener { openIndoPak() }
     }
 
     override fun onDestroyView() {

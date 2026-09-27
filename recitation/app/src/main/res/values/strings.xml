@@ -2,7 +2,24 @@
     <string name="app_name">Recitation</string>
     <string name="nav_surahs">Surahs</string>
     <string name="nav_lexicon">Lexicon</string>
+    <string name="nav_learn">Learn</string>
     <string name="nav_media">Recitations</string>
+    <string name="nav_more">More</string>
+    <string name="learn_roots">Roots</string>
+    <string name="learn_words">Words</string>
+    <string name="learn_grammar">Grammar</string>
+    <string name="learn_roots_title">Quranic Roots</string>
+    <string name="learn_roots_desc">Classical roots, forms, and Lane\'s Lexicon definitions</string>
+    <string name="learn_words_title">Quranic Words</string>
+    <string name="learn_words_desc">Unique vocabulary, occurrence counts, and contextual meanings</string>
+    <string name="learn_grammar_title">Grammar &amp; Morphology</string>
+    <string name="learn_grammar_desc">Parts of speech tags, case markers, verb forms, and examples</string>
+    <string name="search_words_hint">Search Quranic word or meaning...</string>
+    <string name="more_settings_title">Settings</string>
+    <string name="more_settings_desc">Reciters, translations, fonts, and appearance</string>
+    <string name="more_special_recitations_title">Special Recitations</string>
+    <string name="more_special_recitations_desc">Curated visual recitations with synchronized text</string>
+    <string name="word_details_title">Word Occurrences</string>
     <string name="nav_settings">Settings</string>
     <string name="search_surahs_hint">Search Surah by name, number, or meaning...</string>
     <string name="search_roots_hint">Search Arabic root (e.g. كتب, سلم, نور)...</string>
@@ -39,4 +56,9 @@
     <string name="mushaf_page_of">Page %1$d of %2$d</string>
     <string name="mushaf_juz_label">Juz %1$d</string>
     <string name="jump_to_page">Jump to Page</string>
+    <string name="play">Play</string>
+    <string name="pause">Pause</string>
+    <string name="morphology_source_attribution">Morphology by corpus.quran.com</string>
+    <string name="more_sources_licenses_title">Data Sources &amp; Licenses</string>
+    <string name="more_sources_licenses_desc">Quranic Arabic Corpus, Tanzil.info, Lexicons &amp; open source terms</string>
 </resources>

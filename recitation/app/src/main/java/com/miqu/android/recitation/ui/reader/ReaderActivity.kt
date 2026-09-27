@@ -1,17 +1,23 @@
 package com.miqu.android.recitation.ui.reader
 
 import android.os.Bundle
+import android.view.View
+import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.updateLayoutParams
 import androidx.core.view.updatePadding
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.miqu.android.recitation.R
 import com.miqu.android.recitation.data.QuranDatabaseHelper
 import com.miqu.android.recitation.data.UserSettings
 import com.miqu.android.recitation.databinding.ActivityReaderBinding
+import com.miqu.android.recitation.model.Reciter
 import com.miqu.android.recitation.model.Verse
+import com.miqu.android.recitation.util.QuranAudioPlayer
 import kotlin.concurrent.thread
 
 class ReaderActivity : AppCompatActivity() {
@@ -28,6 +34,9 @@ class ReaderActivity : AppCompatActivity() {
     private lateinit var quranDbHelper: QuranDatabaseHelper
     private lateinit var userSettings: UserSettings
     private lateinit var adapter: VerseAdapter
+    private lateinit var audioPlayer: QuranAudioPlayer
+
+    private var surahId: Int = 1
     private var verses: List<Verse> = emptyList()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -36,9 +45,24 @@ class ReaderActivity : AppCompatActivity() {
         binding = ActivityReaderBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        ViewCompat.setOnApplyWindowInsetsListener(binding.appBarLayout) { v, insets ->
+        userSettings = UserSettings(this)
+        quranDbHelper = QuranDatabaseHelper.getInstance(this)
+        audioPlayer = QuranAudioPlayer(this, userSettings)
+
+        ViewCompat.setOnApplyWindowInsetsListener(binding.readerCoordinator) { _, insets ->
             val statusBars = insets.getInsets(WindowInsetsCompat.Type.statusBars())
-            v.updatePadding(top = statusBars.top)
+            val navBars = insets.getInsets(WindowInsetsCompat.Type.navigationBars())
+
+            binding.appBarLayout.updatePadding(top = statusBars.top)
+
+            val baseMarginPx = (16 * resources.displayMetrics.density).toInt()
+            binding.cardPlaybackBar.updateLayoutParams<androidx.coordinatorlayout.widget.CoordinatorLayout.LayoutParams> {
+                bottomMargin = navBars.bottom + baseMarginPx
+            }
+
+            val listBottomPadding = navBars.bottom + (100 * resources.displayMetrics.density).toInt()
+            binding.recyclerViewVerses.updatePadding(bottom = listBottomPadding)
+
             insets
         }
 
@@ -52,26 +76,26 @@ class ReaderActivity : AppCompatActivity() {
             finish()
         }
 
-        binding.toolbar.inflateMenu(com.miqu.android.recitation.R.menu.menu_reader)
+        binding.toolbar.inflateMenu(R.menu.menu_reader)
         binding.toolbar.setOnMenuItemClickListener { item ->
             when (item.itemId) {
-                com.miqu.android.recitation.R.id.action_appearance -> {
-                    val sheet = ReaderAppearanceBottomSheetFragment {
-                        adapter.notifyDataSetChanged()
-                    }
-                    sheet.show(supportFragmentManager, "AppearanceSheet")
+                R.id.action_play_surah -> {
+                    toggleSurahPlayback()
                     true
                 }
-                com.miqu.android.recitation.R.id.action_settings -> {
-                    val intent = android.content.Intent(this, com.miqu.android.recitation.ui.settings.SettingsActivity::class.java)
-                    startActivity(intent)
+                R.id.action_appearance -> {
+                    val sheet = ReaderAppearanceBottomSheetFragment {
+                        adapter.notifyDataSetChanged()
+                        updatePlaybackBarLabels()
+                    }
+                    sheet.show(supportFragmentManager, "AppearanceSheet")
                     true
                 }
                 else -> false
             }
         }
 
-        val surahId = intent.getIntExtra(EXTRA_SURAH_ID, 1)
+        surahId = intent.getIntExtra(EXTRA_SURAH_ID, 1)
         val surahName = intent.getStringExtra(EXTRA_SURAH_NAME) ?: ""
         val transliteration = intent.getStringExtra(EXTRA_SURAH_TRANSLITERATION) ?: "Surah $surahId"
         val totalVerses = intent.getIntExtra(EXTRA_TOTAL_VERSES, 0)
@@ -80,12 +104,21 @@ class ReaderActivity : AppCompatActivity() {
         binding.toolbar.title = "$transliteration ($surahName)"
         binding.toolbar.subtitle = if (totalVerses > 0) "$totalVerses Verses • Surah #$surahId" else "Surah #$surahId"
 
-        quranDbHelper = QuranDatabaseHelper.getInstance(this)
-        userSettings = UserSettings(this)
+        setupAudioPlayerCallbacks()
+        setupPlaybackBarControls()
 
         adapter = VerseAdapter(
             context = this,
             userSettings = userSettings,
+            onPlayClick = { verse ->
+                if (audioPlayer.currentlyPlayingVerse == verse.verseNumber && audioPlayer.isPlaying) {
+                    audioPlayer.pause()
+                } else if (audioPlayer.currentlyPlayingVerse == verse.verseNumber && !audioPlayer.isPlaying) {
+                    audioPlayer.resume()
+                } else {
+                    audioPlayer.playSingleVerse(surahId, verse.verseNumber)
+                }
+            },
             onMorphologyClick = { verse ->
                 val sheet = MorphologyBottomSheetFragment.newInstance(verse.surahNumber, verse.verseNumber)
                 sheet.show(supportFragmentManager, "MorphologySheet")
@@ -113,10 +146,129 @@ class ReaderActivity : AppCompatActivity() {
         }
     }
 
+    private fun toggleSurahPlayback() {
+        if (audioPlayer.isPlaying) {
+            audioPlayer.pause()
+        } else if (audioPlayer.currentlyPlayingVerse != null) {
+            audioPlayer.resume()
+        } else {
+            val firstVisiblePos = (binding.recyclerViewVerses.layoutManager as? LinearLayoutManager)
+                ?.findFirstVisibleItemPosition() ?: 0
+            val startVerse = if (firstVisiblePos in verses.indices) verses[firstVisiblePos].verseNumber else 1
+            audioPlayer.playFullSurah(surahId, startVerse)
+        }
+    }
+
+    private fun setupAudioPlayerCallbacks() {
+        audioPlayer.onVerseStarted = { verseNumber ->
+            adapter.setPlaybackState(verseNumber, isPlaying = true)
+            binding.cardPlaybackBar.visibility = View.VISIBLE
+            updatePlaybackBarLabels(verseNumber)
+            binding.btnPlaybackPlayPause.setIconResource(R.drawable.ic_pause)
+            updateToolbarPlayIcon(isPlaying = true)
+
+            // Scroll to the active playing verse
+            val pos = verses.indexOfFirst { it.verseNumber == verseNumber }
+            if (pos != -1) {
+                binding.recyclerViewVerses.smoothScrollToPosition(pos)
+            }
+        }
+
+        audioPlayer.onSegmentChanged = { _ ->
+            updatePlaybackBarLabels(audioPlayer.currentlyPlayingVerse)
+        }
+
+        audioPlayer.onStateChanged = { isPlaying, isBuffering ->
+            adapter.setPlaybackState(audioPlayer.currentlyPlayingVerse, isPlaying)
+            binding.btnPlaybackPlayPause.setIconResource(if (isPlaying) R.drawable.ic_pause else R.drawable.ic_play_arrow)
+            updateToolbarPlayIcon(isPlaying)
+            if (!isPlaying && audioPlayer.currentlyPlayingVerse == null) {
+                binding.cardPlaybackBar.visibility = View.GONE
+            }
+        }
+
+        audioPlayer.onPlaybackCompleted = {
+            adapter.setPlaybackState(null, isPlaying = false)
+            binding.cardPlaybackBar.visibility = View.GONE
+            updateToolbarPlayIcon(isPlaying = false)
+        }
+
+        audioPlayer.onError = { msg ->
+            Toast.makeText(this, msg, Toast.LENGTH_SHORT).show()
+            adapter.setPlaybackState(null, isPlaying = false)
+            binding.cardPlaybackBar.visibility = View.GONE
+            updateToolbarPlayIcon(isPlaying = false)
+        }
+    }
+
+    private fun setupPlaybackBarControls() {
+        binding.btnPlaybackPlayPause.setOnClickListener {
+            if (audioPlayer.isPlaying) {
+                audioPlayer.pause()
+            } else {
+                audioPlayer.resume()
+            }
+        }
+
+        binding.btnPlaybackNext.setOnClickListener {
+            audioPlayer.nextVerse()
+        }
+
+        binding.btnPlaybackPrev.setOnClickListener {
+            audioPlayer.previousVerse()
+        }
+
+        binding.btnPlaybackClose.setOnClickListener {
+            audioPlayer.stop()
+            binding.cardPlaybackBar.visibility = View.GONE
+            adapter.setPlaybackState(null, isPlaying = false)
+            updateToolbarPlayIcon(isPlaying = false)
+        }
+    }
+
+    private fun updatePlaybackBarLabels(verseNumber: Int? = audioPlayer.currentlyPlayingVerse) {
+        verseNumber?.let { v ->
+            binding.textPlaybackVerse.text = "Ayah $surahId:$v"
+        }
+        val arabicReciter = Reciter.getArabicReciter(userSettings.reciterIdentifier)
+        val transReciter = Reciter.getTranslationReciter(userSettings.translationReciterIdentifier)
+        val mode = userSettings.audioRecitationMode
+
+        val label = when {
+            mode == QuranAudioPlayer.MODE_TRANSLATION_ONLY -> transReciter.name
+            mode == QuranAudioPlayer.MODE_BOTH -> {
+                if (audioPlayer.isTranslationSubSegment) {
+                    "${transReciter.name} (Translation)"
+                } else {
+                    "${arabicReciter.name} (Arabic)"
+                }
+            }
+            else -> arabicReciter.name
+        }
+        binding.textPlaybackReciter.text = label
+    }
+
+    private fun updateToolbarPlayIcon(isPlaying: Boolean) {
+        val playItem = binding.toolbar.menu.findItem(R.id.action_play_surah) ?: return
+        playItem.setIcon(if (isPlaying) R.drawable.ic_pause else R.drawable.ic_play_arrow)
+        playItem.title = if (isPlaying) "Pause" else "Play Surah"
+    }
+
     override fun onResume() {
         super.onResume()
         if (::adapter.isInitialized) {
             adapter.notifyDataSetChanged()
         }
+    }
+
+    override fun onStop() {
+        super.onStop()
+        // Stop audio playback immediately when leaving the app or activity
+        audioPlayer.stop()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        audioPlayer.release()
     }
 }

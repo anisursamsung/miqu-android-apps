@@ -105,6 +105,68 @@ class SettingsFragment : Fragment() {
             updatePreview()
         }
 
+        // Text display switches
+        binding.switchSettingsShowArabic.isChecked = settings.showArabic
+        binding.switchSettingsShowArabic.setOnCheckedChangeListener { _, isChecked ->
+            if (!isChecked && !settings.showTranslation) {
+                binding.switchSettingsShowArabic.isChecked = true
+                return@setOnCheckedChangeListener
+            }
+            settings.showArabic = isChecked
+            updatePreview()
+        }
+
+        binding.switchSettingsShowTranslation.isChecked = settings.showTranslation
+        binding.switchSettingsShowTranslation.setOnCheckedChangeListener { _, isChecked ->
+            if (!isChecked && !settings.showArabic) {
+                binding.switchSettingsShowTranslation.isChecked = true
+                return@setOnCheckedChangeListener
+            }
+            settings.showTranslation = isChecked
+            updatePreview()
+        }
+
+        // Arabic Reciter dropdown setup
+        val arabicReciters = com.miqu.android.recitation.model.Reciter.ARABIC_RECITERS
+        val reciterNames = arabicReciters.map { it.name }
+        val reciterAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, reciterNames)
+        binding.dropdownSettingsReciter.setAdapter(reciterAdapter)
+        val currentReciterIdx = arabicReciters.indexOfFirst { it.identifier == settings.reciterIdentifier }.coerceAtLeast(0)
+        binding.dropdownSettingsReciter.setText(reciterNames[currentReciterIdx], false)
+        binding.dropdownSettingsReciter.setOnItemClickListener { _, _, position, _ ->
+            settings.reciterIdentifier = arabicReciters[position].identifier
+        }
+
+        // Audio Mode dropdown setup
+        val audioModeOptions = listOf(
+            "Arabic Only" to 0,
+            "Translation Only" to 1,
+            "Both (Arabic + Translation)" to 2
+        )
+        val modeNames = audioModeOptions.map { it.first }
+        val modeAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, modeNames)
+        binding.dropdownSettingsAudioMode.setAdapter(modeAdapter)
+        val currentModeIdx = audioModeOptions.indexOfFirst { it.second == settings.audioRecitationMode }.coerceAtLeast(0)
+        binding.dropdownSettingsAudioMode.setText(modeNames[currentModeIdx], false)
+        binding.layoutSettingsTranslationReciter.visibility = if (settings.audioRecitationMode == 1 || settings.audioRecitationMode == 2) View.VISIBLE else View.GONE
+
+        binding.dropdownSettingsAudioMode.setOnItemClickListener { _, _, position, _ ->
+            val mode = audioModeOptions[position].second
+            settings.audioRecitationMode = mode
+            binding.layoutSettingsTranslationReciter.visibility = if (mode == 1 || mode == 2) View.VISIBLE else View.GONE
+        }
+
+        // Translation Reciter dropdown setup
+        val transReciters = com.miqu.android.recitation.model.Reciter.TRANSLATION_RECITERS
+        val transReciterNames = transReciters.map { it.name }
+        val transReciterAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, transReciterNames)
+        binding.dropdownSettingsTranslationReciter.setAdapter(transReciterAdapter)
+        val currentTransReciterIdx = transReciters.indexOfFirst { it.identifier == settings.translationReciterIdentifier }.coerceAtLeast(0)
+        binding.dropdownSettingsTranslationReciter.setText(transReciterNames[currentTransReciterIdx], false)
+        binding.dropdownSettingsTranslationReciter.setOnItemClickListener { _, _, position, _ ->
+            settings.translationReciterIdentifier = transReciters[position].identifier
+        }
+
         updatePreview()
     }
 
@@ -134,9 +196,11 @@ class SettingsFragment : Fragment() {
     }
 
     private fun updatePreview() {
+        binding.textArabicPreview.visibility = if (settings.showArabic) View.VISIBLE else View.GONE
         binding.textArabicPreview.typeface = FontHelper.getArabicTypeface(requireContext())
         binding.textArabicPreview.textSize = settings.arabicFontSize
 
+        binding.textTranslationPreview.visibility = if (settings.showTranslation) View.VISIBLE else View.GONE
         binding.textTranslationPreview.typeface = FontHelper.getTranslationTypeface(requireContext(), settings)
         binding.textTranslationPreview.textSize = settings.translationFontSize
         binding.textTranslationPreview.text = sampleTranslations[settings.translation]

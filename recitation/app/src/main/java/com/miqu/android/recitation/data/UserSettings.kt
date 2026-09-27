@@ -13,7 +13,11 @@ class UserSettings(context: Context) {
         const val PREF_TAFSIR = "pref_tafsir"
         const val PREF_ARABIC_SIZE = "pref_arabic_size"
         const val PREF_TRANSLATION_SIZE = "pref_translation_size"
+        const val PREF_SHOW_ARABIC = "pref_show_arabic"
         const val PREF_SHOW_TRANSLATION = "pref_show_translation"
+        const val PREF_RECITER = "pref_reciter"
+        const val PREF_TRANSLATION_RECITER = "pref_translation_reciter"
+        const val PREF_AUDIO_MODE = "pref_audio_mode" // 0: Arabic, 1: Translation, 2: Both
         const val PREF_FONT_ARABIC = "pref_font_arabic"
         const val PREF_FONT_ENGLISH = "pref_font_english"
         const val PREF_FONT_BENGALI = "pref_font_bengali"
@@ -61,9 +65,25 @@ class UserSettings(context: Context) {
         get() = prefs.getFloat(PREF_TRANSLATION_SIZE, 15f)
         set(value) = prefs.edit().putFloat(PREF_TRANSLATION_SIZE, value).apply()
 
+    var showArabic: Boolean
+        get() = prefs.getBoolean(PREF_SHOW_ARABIC, true)
+        set(value) = prefs.edit().putBoolean(PREF_SHOW_ARABIC, value).apply()
+
     var showTranslation: Boolean
         get() = prefs.getBoolean(PREF_SHOW_TRANSLATION, true)
         set(value) = prefs.edit().putBoolean(PREF_SHOW_TRANSLATION, value).apply()
+
+    var reciterIdentifier: String
+        get() = prefs.getString(PREF_RECITER, com.miqu.android.recitation.model.Reciter.DEFAULT_ARABIC_RECITER_ID) ?: com.miqu.android.recitation.model.Reciter.DEFAULT_ARABIC_RECITER_ID
+        set(value) = prefs.edit().putString(PREF_RECITER, value).apply()
+
+    var translationReciterIdentifier: String
+        get() = prefs.getString(PREF_TRANSLATION_RECITER, com.miqu.android.recitation.model.Reciter.DEFAULT_TRANSLATION_RECITER_ID) ?: com.miqu.android.recitation.model.Reciter.DEFAULT_TRANSLATION_RECITER_ID
+        set(value) = prefs.edit().putString(PREF_TRANSLATION_RECITER, value).apply()
+
+    var audioRecitationMode: Int
+        get() = prefs.getInt(PREF_AUDIO_MODE, 0) // 0: Arabic, 1: Translation, 2: Both
+        set(value) = prefs.edit().putInt(PREF_AUDIO_MODE, value).apply()
 
     var fontArabic: String
         get() = prefs.getString(PREF_FONT_ARABIC, FONT_UTHMAN) ?: FONT_UTHMAN

@@ -12,11 +12,19 @@ class ExactWordOccurrencesAdapter(
     private val onOccurrenceClick: (WordRoot) -> Unit
 ) : RecyclerView.Adapter<ExactWordOccurrencesAdapter.ViewHolder>() {
 
-    private var items: List<WordRoot> = emptyList()
+    private val items = mutableListOf<WordRoot>()
 
     fun submitList(newList: List<WordRoot>) {
-        items = newList
+        items.clear()
+        items.addAll(newList)
         notifyDataSetChanged()
+    }
+
+    fun appendList(additionalList: List<WordRoot>) {
+        if (additionalList.isEmpty()) return
+        val startPos = items.size
+        items.addAll(additionalList)
+        notifyItemRangeInserted(startPos, additionalList.size)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {

@@ -51,6 +51,8 @@ class RootsDatabaseHelper(context: Context) :
             db.execSQL("CREATE INDEX IF NOT EXISTS idx_roots_surah_verse ON $TABLE_ROOTS ($COL_SURAH, $COL_VERSE, $COL_POSITION);")
             db.execSQL("CREATE INDEX IF NOT EXISTS idx_roots_root ON $TABLE_ROOTS ($COL_ROOT);")
             db.execSQL("CREATE INDEX IF NOT EXISTS idx_roots_arabic ON $TABLE_ROOTS ($COL_ARABIC);")
+            db.execSQL("CREATE INDEX IF NOT EXISTS idx_roots_arabic_loc ON $TABLE_ROOTS ($COL_ARABIC, $COL_SURAH, $COL_VERSE, $COL_POSITION);")
+            db.execSQL("CREATE INDEX IF NOT EXISTS idx_roots_root_loc ON $TABLE_ROOTS ($COL_ROOT, $COL_SURAH, $COL_VERSE, $COL_POSITION);")
             db.execSQL("CREATE INDEX IF NOT EXISTS idx_corpus_loc ON corpus_morphology (surah, verse, word);")
         } catch (_: Exception) {}
     }
@@ -105,7 +107,7 @@ class RootsDatabaseHelper(context: Context) :
         return map
     }
 
-    fun getOccurrencesForRoot(root: String): List<WordRoot> {
+    fun getOccurrencesForRoot(root: String, limit: Int = 50, offset: Int = 0): List<WordRoot> {
         val list = mutableListOf<WordRoot>()
         val db = readableDatabase
         val cursor = db.query(
@@ -115,7 +117,8 @@ class RootsDatabaseHelper(context: Context) :
             arrayOf(root.trim()),
             null,
             null,
-            "$COL_SURAH ASC, $COL_VERSE ASC, $COL_POSITION ASC"
+            "$COL_SURAH ASC, $COL_VERSE ASC, $COL_POSITION ASC",
+            "$offset, $limit"
         )
         cursor.use {
             while (it.moveToNext()) {
@@ -125,7 +128,7 @@ class RootsDatabaseHelper(context: Context) :
         return list
     }
 
-    fun getExactWordOccurrences(arabicWord: String): List<WordRoot> {
+    fun getExactWordOccurrences(arabicWord: String, limit: Int = 50, offset: Int = 0): List<WordRoot> {
         val list = mutableListOf<WordRoot>()
         val db = readableDatabase
         val cursor = db.query(
@@ -135,7 +138,8 @@ class RootsDatabaseHelper(context: Context) :
             arrayOf(arabicWord.trim()),
             null,
             null,
-            "$COL_SURAH ASC, $COL_VERSE ASC, $COL_POSITION ASC"
+            "$COL_SURAH ASC, $COL_VERSE ASC, $COL_POSITION ASC",
+            "$offset, $limit"
         )
         cursor.use {
             while (it.moveToNext()) {
@@ -143,6 +147,17 @@ class RootsDatabaseHelper(context: Context) :
             }
         }
         return list
+    }
+
+    fun getExactWordOccurrenceCount(arabicWord: String): Int {
+        val db = readableDatabase
+        val cursor = db.rawQuery(
+            "SELECT count(*) FROM $TABLE_ROOTS WHERE $COL_ARABIC = ?",
+            arrayOf(arabicWord.trim())
+        )
+        return cursor.use {
+            if (it.moveToFirst()) it.getInt(0) else 0
+        }
     }
 
     fun getRootOccurrenceCount(root: String): Int {
@@ -154,6 +169,61 @@ class RootsDatabaseHelper(context: Context) :
         return cursor.use {
             if (it.moveToFirst()) it.getInt(0) else 0
         }
+    }
+
+    fun getRootsByFrequency(query: String? = null, limit: Int = 2000): List<com.miqu.android.recitation.model.RootEntry> {
+        val list = mutableListOf<com.miqu.android.recitation.model.RootEntry>()
+        val db = readableDatabase
+        val sql = if (query.isNullOrBlank()) {
+            "SELECT root, count(root) as cnt FROM $TABLE_ROOTS WHERE root IS NOT NULL AND root != '' GROUP BY root ORDER BY cnt DESC LIMIT ?"
+        } else {
+            "SELECT root, count(root) as cnt FROM $TABLE_ROOTS WHERE root IS NOT NULL AND root != '' AND root LIKE ? GROUP BY root ORDER BY cnt DESC LIMIT ?"
+        }
+        val args = if (query.isNullOrBlank()) {
+            arrayOf(limit.toString())
+        } else {
+            arrayOf("%${query.trim()}%", limit.toString())
+        }
+        val cursor = db.rawQuery(sql, args)
+        cursor.use {
+            while (it.moveToNext()) {
+                val root = it.getString(0) ?: ""
+                val count = it.getInt(1)
+                list.add(com.miqu.android.recitation.model.RootEntry(root = root, definition = "", occurrencesCount = count))
+            }
+        }
+        return list
+    }
+
+    fun getUniqueWords(query: String? = null, limit: Int = 300): List<com.miqu.android.recitation.model.QuranWord> {
+        val list = mutableListOf<com.miqu.android.recitation.model.QuranWord>()
+        val db = readableDatabase
+        val sql = if (query.isNullOrBlank()) {
+            "SELECT arabic, root, count(*) as cnt FROM $TABLE_ROOTS GROUP BY arabic ORDER BY cnt DESC LIMIT ?"
+        } else {
+            "SELECT arabic, root, count(*) as cnt FROM $TABLE_ROOTS WHERE arabic LIKE ? OR root LIKE ? GROUP BY arabic ORDER BY cnt DESC LIMIT ?"
+        }
+        val args = if (query.isNullOrBlank()) {
+            arrayOf(limit.toString())
+        } else {
+            val q = "%${query.trim()}%"
+            arrayOf(q, q, limit.toString())
+        }
+        val cursor = db.rawQuery(sql, args)
+        cursor.use {
+            while (it.moveToNext()) {
+                val root = it.getString(1)?.trim() ?: ""
+                list.add(
+                    com.miqu.android.recitation.model.QuranWord(
+                        arabic = it.getString(0) ?: "",
+                        english = "",
+                        root = root,
+                        count = it.getInt(2)
+                    )
+                )
+            }
+        }
+        return list
     }
 
     private fun cursorToWordRoot(cursor: Cursor): WordRoot {

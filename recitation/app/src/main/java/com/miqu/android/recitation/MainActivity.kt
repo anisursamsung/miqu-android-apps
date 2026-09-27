@@ -8,19 +8,19 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updatePadding
 import androidx.fragment.app.Fragment
 import com.miqu.android.recitation.databinding.ActivityMainBinding
-import com.miqu.android.recitation.ui.lexicon.LexiconFragment
-import com.miqu.android.recitation.ui.settings.SettingsFragment
+import com.miqu.android.recitation.ui.learn.LearnFragment
+import com.miqu.android.recitation.ui.more.MoreFragment
+import com.miqu.android.recitation.ui.mushaf.MushafsFragment
 import com.miqu.android.recitation.ui.surah.SurahListFragment
-import com.miqu.android.recitation.ui.videos.VideosFragment
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
 
     private val surahListFragment = SurahListFragment()
-    private val mushafsFragment = com.miqu.android.recitation.ui.mushaf.MushafsFragment()
-    private val lexiconFragment = LexiconFragment()
-    private val videosFragment = VideosFragment()
+    private val mushafsFragment = MushafsFragment()
+    private val learnFragment = LearnFragment()
+    private val moreFragment = MoreFragment()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()
@@ -44,18 +44,6 @@ class MainActivity : AppCompatActivity() {
             switchFragment(surahListFragment, getString(R.string.app_name))
         }
 
-        binding.toolbar.inflateMenu(R.menu.menu_main)
-        binding.toolbar.setOnMenuItemClickListener { item ->
-            when (item.itemId) {
-                R.id.action_settings -> {
-                    val intent = android.content.Intent(this, com.miqu.android.recitation.ui.settings.SettingsActivity::class.java)
-                    startActivity(intent)
-                    true
-                }
-                else -> false
-            }
-        }
-
         binding.bottomNavigation.setOnItemSelectedListener { item ->
             when (item.itemId) {
                 R.id.nav_surahs -> {
@@ -66,12 +54,12 @@ class MainActivity : AppCompatActivity() {
                     switchFragment(mushafsFragment, getString(R.string.nav_mushaf))
                     true
                 }
-                R.id.nav_lexicon -> {
-                    switchFragment(lexiconFragment, getString(R.string.nav_lexicon))
+                R.id.nav_learn -> {
+                    switchFragment(learnFragment, getString(R.string.nav_learn))
                     true
                 }
-                R.id.nav_media -> {
-                    switchFragment(videosFragment, getString(R.string.nav_media))
+                R.id.nav_more -> {
+                    switchFragment(moreFragment, getString(R.string.nav_more))
                     true
                 }
                 else -> false

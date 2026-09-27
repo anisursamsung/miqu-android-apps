@@ -9,6 +9,7 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updatePadding
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.miqu.android.recitation.data.RootsDatabaseHelper
 import com.miqu.android.recitation.data.SurahRepository
 import com.miqu.android.recitation.databinding.ActivityRootDetailBinding
@@ -20,12 +21,18 @@ class RootDetailActivity : AppCompatActivity() {
     companion object {
         const val EXTRA_ROOT = "extra_root"
         const val EXTRA_DEFINITION = "extra_definition"
+        private const val PAGE_SIZE = 40
     }
 
     private lateinit var binding: ActivityRootDetailBinding
     private lateinit var adapter: RootOccurrencesAdapter
     private lateinit var rootsDbHelper: RootsDatabaseHelper
     private lateinit var surahRepo: SurahRepository
+
+    private var currentOffset = 0
+    private var totalCount = 0
+    private var isLoading = false
+    private var hasMore = true
 
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()
@@ -50,11 +57,14 @@ class RootDetailActivity : AppCompatActivity() {
         }
 
         val rootText = intent.getStringExtra(EXTRA_ROOT) ?: ""
-        val definition = intent.getStringExtra(EXTRA_DEFINITION) ?: ""
+        var definition = intent.getStringExtra(EXTRA_DEFINITION) ?: ""
+        if (definition.isEmpty()) {
+            definition = com.miqu.android.recitation.data.LexiconRepository(this).getRootEntry(rootText)?.definition ?: ""
+        }
 
-        binding.textRootArabicLarge.text = rootText.toCharArray().joinToString(" ")
+        binding.textRootArabicLarge.text = rootText
         binding.textRootArabicLarge.typeface = com.miqu.android.recitation.util.FontHelper.getArabicTypeface(this)
-        binding.textRootFullDefinition.text = definition.ifEmpty { "Classical root form: $rootText" }
+        binding.textRootFullDefinition.text = definition.ifEmpty { "Root form: $rootText" }
         binding.toolbar.title = "Root: \u200E$rootText"
 
         rootsDbHelper = RootsDatabaseHelper.getInstance(this)
@@ -72,14 +82,54 @@ class RootDetailActivity : AppCompatActivity() {
             startActivity(intent)
         }
 
-        binding.recyclerViewOccurrences.layoutManager = LinearLayoutManager(this)
+        val layoutManager = LinearLayoutManager(this)
+        binding.recyclerViewOccurrences.layoutManager = layoutManager
         binding.recyclerViewOccurrences.adapter = adapter
 
-        thread(start = true, name = "root-occurrences-loader") {
-            val occurrences = rootsDbHelper.getOccurrencesForRoot(rootText)
+        binding.recyclerViewOccurrences.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                super.onScrolled(recyclerView, dx, dy)
+                if (dy <= 0) return
+                val visibleItemCount = layoutManager.childCount
+                val totalItemCount = layoutManager.itemCount
+                val firstVisibleItemPosition = layoutManager.findFirstVisibleItemPosition()
+
+                if (!isLoading && hasMore) {
+                    if (visibleItemCount + firstVisibleItemPosition >= totalItemCount - 8) {
+                        loadNextPage(rootText)
+                    }
+                }
+            }
+        })
+
+        loadNextPage(rootText)
+    }
+
+    private fun loadNextPage(rootText: String) {
+        if (isLoading || !hasMore) return
+        isLoading = true
+        binding.progressLoadingMore.visibility = if (currentOffset > 0) android.view.View.VISIBLE else android.view.View.GONE
+
+        thread(start = true, name = "root-occurrences-page-$currentOffset") {
+            if (currentOffset == 0) {
+                totalCount = rootsDbHelper.getRootOccurrenceCount(rootText)
+            }
+            val page = rootsDbHelper.getOccurrencesForRoot(rootText, limit = PAGE_SIZE, offset = currentOffset)
+
             runOnUiThread {
-                binding.textRootTotalOccurrences.text = "${occurrences.size} Occurrences"
-                adapter.submitList(occurrences)
+                if (isFinishing || isDestroyed) return@runOnUiThread
+
+                if (currentOffset == 0) {
+                    binding.textRootTotalOccurrences.text = "$totalCount Occurrences"
+                    adapter.submitList(page)
+                } else {
+                    adapter.appendList(page)
+                }
+
+                currentOffset += page.size
+                hasMore = page.size >= PAGE_SIZE && currentOffset < totalCount
+                isLoading = false
+                binding.progressLoadingMore.visibility = android.view.View.GONE
             }
         }
     }

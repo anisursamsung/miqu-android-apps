@@ -55,6 +55,12 @@ class MorphologyBottomSheetFragment : BottomSheetDialogFragment() {
         binding.btnMorphologyClose.setOnClickListener {
             dismiss()
         }
+        binding.textMorphologyAttribution.setOnClickListener {
+            try {
+                val intent = Intent(Intent.ACTION_VIEW, android.net.Uri.parse("http://corpus.quran.com"))
+                startActivity(intent)
+            } catch (_: Exception) {}
+        }
 
         rootsDbHelper = RootsDatabaseHelper.getInstance(requireContext())
         lexiconRepo = LexiconRepository(requireContext())
@@ -72,6 +78,7 @@ class MorphologyBottomSheetFragment : BottomSheetDialogFragment() {
                 val intent = Intent(requireContext(), WordDetailActivity::class.java).apply {
                     putExtra(WordDetailActivity.EXTRA_ARABIC_WORD, word.arabic)
                     putExtra(WordDetailActivity.EXTRA_CURRENT_MEANING, word.english)
+                    putExtra(WordDetailActivity.EXTRA_ROOT, word.root)
                 }
                 startActivity(intent)
             }

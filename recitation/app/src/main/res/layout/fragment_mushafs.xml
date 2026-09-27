@@ -14,24 +14,6 @@
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
-        <!-- Header introduction -->
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="4dp"
-            android:text="15-Line Mushaf Replicas"
-            android:textColor="?attr/colorOnSurface"
-            android:textSize="20sp"
-            android:textStyle="bold" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"
-            android:text="Authentic page-by-page replicas with fixed 15-line print layout, traditional typography, and Juz markings."
-            android:textColor="?attr/colorOnSurfaceVariant"
-            android:textSize="13sp" />
-
         <!-- King Fahad Mushaf Card -->
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/cardKingFahad"
@@ -40,6 +22,7 @@
             android:layout_marginBottom="16dp"
             android:clickable="true"
             android:focusable="true"
+            android:foreground="?attr/selectableItemBackground"
             app:cardBackgroundColor="?attr/colorSurfaceContainerLow"
             app:cardCornerRadius="16dp"
             app:cardElevation="0dp"
@@ -99,22 +82,13 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="12dp"
-                    android:layout_marginBottom="12dp"
                     android:background="?attr/colorSurfaceContainerHigh"
                     android:gravity="center"
-                    android:paddingVertical="12dp"
+                    android:paddingVertical="14dp"
                     android:paddingHorizontal="16dp"
                     android:text="بِسۡمِ ٱللَّهِ ٱلرَّحۡمَٰنِ ٱلرَّحِيمِ"
                     android:textColor="?attr/colorOnSurface"
                     android:textSize="22sp" />
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnOpenKingFahad"
-                    style="@style/Widget.Material3.Button.TonalButton"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@string/open_mushaf"
-                    app:icon="@drawable/ic_book" />
 
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
@@ -127,6 +101,7 @@
             android:layout_marginBottom="16dp"
             android:clickable="true"
             android:focusable="true"
+            android:foreground="?attr/selectableItemBackground"
             app:cardBackgroundColor="?attr/colorSurfaceContainerLow"
             app:cardCornerRadius="16dp"
             app:cardElevation="0dp"
@@ -186,22 +161,13 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="12dp"
-                    android:layout_marginBottom="12dp"
                     android:background="?attr/colorSurfaceContainerHigh"
                     android:gravity="center"
-                    android:paddingVertical="12dp"
+                    android:paddingVertical="14dp"
                     android:paddingHorizontal="16dp"
                     android:text="بِسْمِ اللّٰهِ الرَّحْمٰنِ الرَّحِیْمِ"
                     android:textColor="?attr/colorOnSurface"
                     android:textSize="22sp" />
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnOpenIndoPak"
-                    style="@style/Widget.Material3.Button.TonalButton"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@string/open_mushaf"
-                    app:icon="@drawable/ic_book" />
 
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>

@@ -10,11 +10,19 @@ class RootOccurrencesAdapter(
     private val onOccurrenceClick: (WordRoot) -> Unit
 ) : RecyclerView.Adapter<RootOccurrencesAdapter.OccurrenceViewHolder>() {
 
-    private var occurrences: List<WordRoot> = emptyList()
+    private val occurrences = mutableListOf<WordRoot>()
 
     fun submitList(newList: List<WordRoot>) {
-        occurrences = newList
+        occurrences.clear()
+        occurrences.addAll(newList)
         notifyDataSetChanged()
+    }
+
+    fun appendList(additionalList: List<WordRoot>) {
+        if (additionalList.isEmpty()) return
+        val startPos = occurrences.size
+        occurrences.addAll(additionalList)
+        notifyItemRangeInserted(startPos, additionalList.size)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): OccurrenceViewHolder {
